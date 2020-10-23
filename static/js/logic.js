@@ -1,7 +1,7 @@
 
 var myMap = L.map("mapid", {
-  center: [35.007, -97.0929],
-  zoom: 5,
+  center: [37.7749, -122.4194],
+  zoom: 4,
   layers: Satellite
 });
 
@@ -54,6 +54,7 @@ let depth=0;
 let Locations = [];
 // Grabbing our GeoJSON data..
 d3.json(link, function(data) {
+  console.log(data)
   // Creating a GeoJSON layer with the retrieved data
  var Geometry = data.features
  var markers = L.markerClusterGroup();
@@ -90,7 +91,7 @@ d3.json(link, function(data) {
       fillOpacity:depth ,
       color: "white",
       fillColor: color,
-      radius: Geometry[i].properties.mag*5000
+      radius: Geometry[i].properties.mag*20000
     })
     
     )
@@ -102,14 +103,31 @@ d3.json(link, function(data) {
       markers.addLayer(L.marker([lat, lng])
         .bindPopup("Place:"+Geometry[i].properties.place +"<hr>"+
         "Magnitude:"+Geometry[i].properties.mag+"<br>"+
-        "Time:"+Geometry[i].properties.time));
+        "Time:"+Geometry[i].properties.time+"<br>"+
+        "Depth:" +Geometry[i].geometry.coordinates[2]));
     }
   }
-  
+
+  Plates_url = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_plates.json"
+ // Grabbing our GeoJSON data..
+d3.json(Plates_url, function(data) {
+  // Creating a geoJSON layer with the retrieved data
+  let techtonic = L.geoJson(data, {
+    style: {
+        color: "yellow",
+        // fillcolor:null,
+        Transparent:true,
+        stroke:true,
+        fillOpacity: 0.001,
+        weight: 1.5
+    }
+  }).addTo(myMap);
+
   var earthquake = L.layerGroup(Locations);
     // Create an overlay object
   var overlayMaps = {
     "Earthquake": earthquake,
+    "Techtonic Plates" :techtonic
   };
    // Add our marker cluster layer to the map
    myMap.addLayer(markers);
@@ -121,6 +139,7 @@ d3.json(link, function(data) {
 
 
 L.control.layers(baseMaps,overlayMaps).addTo(myMap);
+});
 }
 );
 
@@ -152,3 +171,4 @@ for (var i = 0; i < categories.length; i++) {
 return div;
 };
 legend.addTo(myMap);
+
