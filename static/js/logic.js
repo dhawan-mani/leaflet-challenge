@@ -124,6 +124,7 @@ d3.json(Plates_url, function(data) {
   }).addTo(myMap);
 
   var earthquake = L.layerGroup(Locations);
+  earthquake.addTo(myMap)
     // Create an overlay object
   var overlayMaps = {
     "Earthquake": earthquake,
