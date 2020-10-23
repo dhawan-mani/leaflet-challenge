@@ -1,11 +1,11 @@
-
+// Creating map object
 var myMap = L.map("mapid", {
   center: [37.7749, -122.4194],
   zoom: 4,
   layers: Satellite
 });
 
-// Adding tile layer
+// Adding tile layers
 var GrayScale = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
   attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
   tileSize: 512,
@@ -40,22 +40,16 @@ var baseMaps = {
   "Outdoors": Outdoors
 };
 
-
-
-// Pass our map layers into our layer control
-// Add the layer control to the map
-
-
 // Use this link to get the geojson data.
 var link = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 let lat=0;
 let lng=0;
 let depth=0;
 let Locations = [];
-// Grabbing our GeoJSON data..
+// Grabbing our data..
 d3.json(link, function(data) {
   console.log(data)
-  // Creating a GeoJSON layer with the retrieved data
+  // Creating layer with the retrieved data
  var Geometry = data.features
  var markers = L.markerClusterGroup();
   for (i=0;i<Geometry.length;i++){
@@ -63,9 +57,9 @@ d3.json(link, function(data) {
     lat=(Geometry[i].geometry.coordinates[1])
     depth=(Geometry[i].geometry.coordinates[2])
 
-    // Loop through the coorrdinates  and create one marker for each city object
+    // Loop through the coordinates  and create one marker for each city object
 
-      // Conditionals for countries points
+      // Conditionals for the colors of the circles
       var color = "";
       if (depth > 90) {
         color = "red";
@@ -85,6 +79,7 @@ d3.json(link, function(data) {
       else {
         color = "#66FF00";
       }
+      // Defining circles here
     Locations .push(
     L.circle([lat,lng],{
       stroke: false,
@@ -96,8 +91,6 @@ d3.json(link, function(data) {
     
     )
 
-
-        
     if ([lat,lng]) {
       // Add a new marker to the cluster group and bind a pop-up
       markers.addLayer(L.marker([lat, lng])
@@ -115,7 +108,6 @@ d3.json(Plates_url, function(data) {
   let techtonic = L.geoJson(data, {
     style: {
         color: "yellow",
-        // fillcolor:null,
         Transparent:true,
         stroke:true,
         fillOpacity: 0.001,
@@ -123,27 +115,26 @@ d3.json(Plates_url, function(data) {
     }
   }).addTo(myMap);
 
+
+// Pass our map layers into our layer control
+
   var earthquake = L.layerGroup(Locations);
   earthquake.addTo(myMap)
-    // Create an overlay object
+// Create an overlay object
   var overlayMaps = {
     "Earthquake": earthquake,
     "Techtonic Plates" :techtonic
   };
-   // Add our marker cluster layer to the map
+// Add our marker cluster layer to the map
    myMap.addLayer(markers);
 
-  console.log(data)
-  console.log(lat);
-  console.log(lng)
- 
+// Add the layer control to the map
+  L.control.layers(baseMaps,overlayMaps).addTo(myMap);
+  });
+  }
+  );
 
-
-L.control.layers(baseMaps,overlayMaps).addTo(myMap);
-});
-}
-);
-
+// Defining a function for the legend
 function getColor(d) {
   return d === '90+'  ? "red" :
          d === '70-90'  ? "#E74C3C" :
@@ -152,7 +143,7 @@ function getColor(d) {
          d === '10-30' ? "#CCFF00" :
                       "#66FF00";
 }
-
+// Specifying position of the legend
 var legend = L.control({position: 'bottomright'});
 legend.onAdd = function (map) {
 
@@ -161,7 +152,6 @@ labels = ['<strong>Depths</strong>'],
 categories = ['90+','70-90','50-70','30-50','10-30','-10-10'];
 
 for (var i = 0; i < categories.length; i++) {
-
         div.innerHTML += 
         labels.push(
             '<i class="circle" style="background:' + getColor(categories[i]) + '"></i> ' +
